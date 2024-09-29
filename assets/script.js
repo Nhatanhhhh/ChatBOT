@@ -7,7 +7,7 @@ document.addEventListener("DOMContentLoaded", function () {
     const chatbotCloseBtn = document.querySelector(".close-btn");
 
     let userMessage;
-    const API_KEY = "";
+    const API_KEY = "YOUR_API_KEY";
     const inputInitHeight = chatInput.scrollHeight;
 
     // Create <li> element to display messages
