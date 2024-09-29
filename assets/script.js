@@ -33,7 +33,7 @@ const generateResponse = (incomingChatLi) => {
             "Authorization": `Bearer ${API_KEY}`
         },
         body: JSON.stringify({
-            model: "llama-3.2-11b-vision-preview",
+            model: " llama-3.1-8b-instant",
             messages: [{ role: "user", content: userMessage }],
             max_tokens: 150,
             temperature: 0.7
