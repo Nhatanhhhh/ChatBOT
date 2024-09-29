@@ -1,16 +1,20 @@
 const chatInput = document.querySelector(".chat-input textarea");
 const sendChatBtn = document.querySelector(".chat-input span");
 const chatbox = document.querySelector(".chatbox");
+const chatbotToggler = document.querySelector(".chatbot-toggler");
+const chatbotCloseBtn = document.querySelector(".close-btn");
 
 let userMessage;
 const API_KEY = "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";
+const inputInitHeight = chatInput.scrollHeight;
 
 // Tạo phần tử <li> để hiển thị tin nhắn
 const createChatLi = (message, className) => {
     const chatLi = document.createElement("li");
     chatLi.classList.add("chat", className);
-    let chatContent = className === "outgoing" ? `<p>${message}</p>` : '<span class="material-symbols-outlined">smart_toy</span><p>Đang suy nghĩ...</p>';
+    let chatContent = className === "outgoing" ? `<p></p>` : '<span class="material-symbols-outlined">smart_toy</span><p>Thinking...</p>';
     chatLi.innerHTML = chatContent;
+    chatLi.querySelector("p").textContent = message;
     return chatLi;
 }
 
@@ -35,7 +39,7 @@ const generateResponse = (incomingChatLi) => {
         body: JSON.stringify({
             model: "llama-3.1-8b-instant",
             messages: [{ role: "user", content: userMessage }],
-            max_tokens: 150,
+            max_tokens: 350,
             temperature: 0.7
         })
     };
@@ -64,8 +68,9 @@ const generateResponse = (incomingChatLi) => {
                 messageElement.textContent = "Không nhận được phản hồi. Vui lòng thử lại.";
             }
         })
-        .catch(error => {
+        .catch((error) => {
             console.error('Error fetching data from API:', error);
+            messageElement.classList.add("error");
             if (error.response) {
                 console.log('API response data:', error.response.data);  // Log chi tiết từ phản hồi của API
             }
@@ -76,7 +81,7 @@ const generateResponse = (incomingChatLi) => {
             } else {
                 messageElement.textContent = "Xin lỗi! Đã xảy ra lỗi. Vui lòng thử lại.";
             }
-        });
+        }).finally(() => chatbox.scrollTo(0, chatbox.scrollHeight));
 }
 
 // Xử lý sự kiện khi người dùng gửi tin nhắn
@@ -86,19 +91,38 @@ const handleChat = () => {
         console.error("User input is empty.");  // Log khi người dùng không nhập tin nhắn
         return;
     }
-
+    chatInput.computedStyleMap.height = `${inputInitHeight}px`;
     // Thêm tin nhắn của người dùng vào chatbox
     chatbox.appendChild(createChatLi(userMessage, "outgoing"));
+    chatbox.scrollTo(0, chatbox.scrollHeight);
 
     // Thêm tin nhắn "Đang suy nghĩ..." sau 600ms
     setTimeout(() => {
-        const incomingChatLi = createChatLi("Đang suy nghĩ...", "incoming");
+        const incomingChatLi = createChatLi("Thinking...", "incoming");
         chatbox.appendChild(incomingChatLi);
+        chatbox.scrollTo(0, chatbox.scrollHeight);
         generateResponse(incomingChatLi);  // Gọi hàm gửi yêu cầu API
     }, 600);
 
     chatInput.value = "";  // Reset input sau khi gửi tin nhắn
 }
 
+chatInput.addEventListener("input", () => {
+    // Adjust the height of the inphut textarea based on its content
+    chatInput.computedStyleMap.height = `${inputInitHeight}px`;
+    chatInput.computedStyleMap.height = `${chatInput.scrollHeight}px`;
+})
+
+chatInput.addEventListener("keydown", (e) => {
+    // If Enter key is pressed without Shift key and the window
+    // width is the greater than 800px, handle the chat
+    if(e.key === "Enter" && !e.shiftKey && window.innerWidth > 800){
+        e.preventDefault();
+        handleChat();
+    }
+})
+
 // Thêm sự kiện click cho nút gửi tin nhắn
 sendChatBtn.addEventListener("click", handleChat);
+chatbotCloseBtn.addEventListener("click", () => document.body.classList.remove("show-chatbot"));
+chatbotToggler.addEventListener("click", () => document.body.classList.toggle("show-chatbot"));
