@@ -39,7 +39,7 @@ const generateResponse = (incomingChatLi) => {
         body: JSON.stringify({
             model: "llama-3.1-8b-instant",
             messages: [{ role: "user", content: userMessage }],
-            max_tokens: 350,
+            max_tokens: 450,
             temperature: 0.7
         })
     };
